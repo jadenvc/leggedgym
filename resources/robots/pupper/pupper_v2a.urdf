@@ -245,7 +245,7 @@
       <parent link="pupper_v2_dji_chassis"/>
       <child link="leftFrontLeg"/>
       <axis xyz="0 -1.0 0"/>
-      <limit lower="-0.7854" upper="0.7854" effort="10" velocity="10"/>
+      <limit lower="-0.7854" upper="0.7854" effort="1.7" velocity="10"/>
     </joint>
 
     <joint name="leftFrontLowerLegMotor" type="revolute">
@@ -253,7 +253,7 @@
       <parent link="leftFrontUpperLeg"/>
       <child link="leftFrontLowerLeg"/>
       <axis xyz="-1.0 0 0"/>
-      <limit lower="-2.87979" upper="2.87979" effort="10" velocity="10"/>
+      <limit lower="-2.87979" upper="2.87979" effort="1.7" velocity="10"/>
     </joint>
 
     <joint name="leftFrontToe" type="fixed">
@@ -267,7 +267,7 @@
       <parent link="leftFrontLeg"/>
       <child link="leftFrontUpperLeg"/>
       <axis xyz="1.0 0 0"/>
-      <limit lower="-1.309" upper="4.45059" effort="10" velocity="10"/>
+      <limit lower="-1.309" upper="4.45059" effort="1.7" velocity="10"/>
     </joint>
 
     <joint name="leftRearLegMotor" type="revolute">
@@ -275,7 +275,7 @@
       <parent link="pupper_v2_dji_chassis"/>
       <child link="leftRearLeg"/>
       <axis xyz="0 -1.0 0"/>
-      <limit lower="-0.7854" upper="0.7854" effort="10" velocity="10"/>
+      <limit lower="-0.7854" upper="0.7854" effort="1.7" velocity="10"/>
     </joint>
 
     <joint name="leftRearLowerLegMotor" type="revolute">
@@ -283,7 +283,7 @@
       <parent link="leftRearUpperLeg"/>
       <child link="leftRearLowerLeg"/>
       <axis xyz="-1.0 0 0"/>
-      <limit lower="-2.87979" upper="2.87979" effort="10" velocity="10"/>
+      <limit lower="-2.87979" upper="2.87979" effort="1.7" velocity="10"/>
     </joint>
 
     <joint name="leftRearToe" type="fixed">
@@ -297,7 +297,7 @@
       <parent link="leftRearLeg"/>
       <child link="leftRearUpperLeg"/>
       <axis xyz="1.0 0 0"/>
-      <limit lower="-1.309" upper="4.45059" effort="10" velocity="10"/>
+      <limit lower="-1.309" upper="4.45059" effort="1.7" velocity="10"/>
     </joint>
 
     <joint name="rightFrontLegMotor" type="revolute">
@@ -305,7 +305,7 @@
       <parent link="pupper_v2_dji_chassis"/>
       <child link="rightFrontLeg"/>
       <axis xyz="0 1.0 0"/>
-      <limit lower="-0.7854" upper="0.7854" effort="10" velocity="10"/>
+      <limit lower="-0.7854" upper="0.7854" effort="1.7" velocity="10"/>
     </joint>
 
     <joint name="rightFrontLowerLegMotor" type="revolute">
@@ -313,7 +313,7 @@
       <parent link="rightFrontUpperLeg"/>
       <child link="rightFrontLowerLeg"/>
       <axis xyz="-1.0 0 0"/>
-      <limit lower="-2.87979" upper="2.87979" effort="10" velocity="10"/>
+      <limit lower="-2.87979" upper="2.87979" effort="1.7" velocity="10"/>
     </joint>
 
     <joint name="rightFrontToe" type="fixed">
@@ -327,7 +327,7 @@
       <parent link="rightFrontLeg"/>
       <child link="rightFrontUpperLeg"/>
       <axis xyz="-1.0 0 0"/>
-      <limit lower="-1.309" upper="4.45059" effort="10" velocity="10"/>
+      <limit lower="-1.309" upper="4.45059" effort="1.7" velocity="10"/>
     </joint>
 
     <joint name="rightRearLegMotor" type="revolute">
@@ -335,7 +335,7 @@
       <parent link="pupper_v2_dji_chassis"/>
       <child link="rightRearLeg"/>
       <axis xyz="0 1.0 0"/>
-      <limit lower="-0.7854" upper="0.7854" effort="10" velocity="10"/>
+      <limit lower="-0.7854" upper="0.7854" effort="1.7" velocity="10"/>
     </joint>
 
     <joint name="rightRearLowerLegMotor" type="revolute">
@@ -343,7 +343,7 @@
       <parent link="rightRearUpperLeg"/>
       <child link="rightRearLowerLeg"/>
       <axis xyz="-1.0 0 0"/>
-      <limit lower="-2.87979" upper="2.87979" effort="10" velocity="10"/>
+      <limit lower="-2.87979" upper="2.87979" effort="1.7" velocity="10"/>
     </joint>
 
     <joint name="rightRearToe" type="fixed">
@@ -357,7 +357,7 @@
       <parent link="rightRearLeg"/>
       <child link="rightRearUpperLeg"/>
       <axis xyz="-1.0 0 0"/>
-      <limit lower="-1.309" upper="4.45059" effort="10" velocity="10"/>
+      <limit lower="-1.309" upper="4.45059" effort="1.7" velocity="10"/>
     </joint>
 
     <material name="PupperMaterial">

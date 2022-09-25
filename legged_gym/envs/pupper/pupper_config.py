@@ -39,7 +39,7 @@ class PupperFlatCfg( LeggedRobotCfg ):
         measure_heights = False
         
     class init_state( LeggedRobotCfg.init_state ):
-        pos = [0.0, 0.0, 0.5] # x,y,z [m]
+        pos = [0.0, 0.0, 0.22] # x,y,z [m]
         default_joint_angles = { # = target angles [rad] when action = 0.0
             'leftFrontLegMotor': 0.0,   # [rad]
             'leftRearLegMotor': 0.0,   # [rad]
@@ -60,8 +60,8 @@ class PupperFlatCfg( LeggedRobotCfg ):
     class control( LeggedRobotCfg.control ):
         # PD Drive parameters:
         control_type = 'P'
-        stiffness = {'LegMotor': 5.}  # [N*m/rad]
-        damping = {'LegMotor': 0.5}     # [N*m*s/rad]
+        stiffness = {'LegMotor': 4.}  # [N*m/rad]
+        damping = {'LegMotor': 0.4}     # [N*m*s/rad]
         # action scale: target angle = actionScale * action + defaultAngle
         action_scale = 0.25
         # decimation: Number of control action updates @ sim DT per policy DT
@@ -77,7 +77,7 @@ class PupperFlatCfg( LeggedRobotCfg ):
   
     class rewards( LeggedRobotCfg.rewards ):
         soft_dof_pos_limit = 0.9
-        base_height_target = 0.25
+        base_height_target = 0.18
         class scales( LeggedRobotCfg.rewards.scales ):
             torques = -0.0002
             dof_pos_limits = -10.0

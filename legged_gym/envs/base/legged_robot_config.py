@@ -130,7 +130,7 @@ class LeggedRobotCfg(BaseConfig):
     class rewards:
         class scales:
             termination = -0.0
-            tracking_lin_vel = 1.5
+            tracking_lin_vel = 1.75
             tracking_ang_vel = 0.8
             lin_vel_z = -2.0
             ang_vel_xy = -0.05
@@ -164,7 +164,7 @@ class LeggedRobotCfg(BaseConfig):
         clip_actions = 100.
 
     class noise:
-        add_noise = True
+        add_noise = False
         noise_level = 1.0 # scales other values
         class noise_scales:
             dof_pos = 0.01

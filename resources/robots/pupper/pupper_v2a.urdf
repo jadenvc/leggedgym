@@ -240,7 +240,7 @@
       </collision>
     </link>
 
-    <joint name="leftFrontLegMotor" type="revolute">
+    <joint name="leg2_leftFrontLegMotor" type="revolute">
       <origin xyz="0.047 -0.1015 0" rpy="0 0 0"/>
       <parent link="pupper_v2_dji_chassis"/>
       <child link="leftFrontLeg"/>
@@ -270,7 +270,7 @@
       <limit lower="-1.309" upper="4.45059" effort="1.7" velocity="10"/>
     </joint>
 
-    <joint name="leftRearLegMotor" type="revolute">
+    <joint name="leg4_leftRearLegMotor" type="revolute">
       <origin xyz="0.047 0.0985 0" rpy="0 0 0"/>
       <parent link="pupper_v2_dji_chassis"/>
       <child link="leftRearLeg"/>
@@ -300,7 +300,7 @@
       <limit lower="-1.309" upper="4.45059" effort="1.7" velocity="10"/>
     </joint>
 
-    <joint name="rightFrontLegMotor" type="revolute">
+    <joint name="leg1_rightFrontLegMotor" type="revolute">
       <origin xyz="-0.047 -0.103 0" rpy="0 0 -3.14159"/>
       <parent link="pupper_v2_dji_chassis"/>
       <child link="rightFrontLeg"/>
@@ -330,7 +330,7 @@
       <limit lower="-1.309" upper="4.45059" effort="1.7" velocity="10"/>
     </joint>
 
-    <joint name="rightRearLegMotor" type="revolute">
+    <joint name="leg3_rightRearLegMotor" type="revolute">
       <origin xyz="-0.047 0.097 0" rpy="0 0 -3.14159"/>
       <parent link="pupper_v2_dji_chassis"/>
       <child link="rightRearLeg"/>

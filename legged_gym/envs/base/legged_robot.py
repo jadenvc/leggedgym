@@ -117,6 +117,8 @@ class LeggedRobot(BaseTask):
         self.base_quat[:] = self.root_states[:, 3:7]
         self.base_lin_vel[:] = quat_rotate_inverse(self.base_quat, self.root_states[:, 7:10])
         self.base_ang_vel[:] = quat_rotate_inverse(self.base_quat, self.root_states[:, 10:13])
+        self.base_roll_pitch_dot[:] = quat_rotate_inverse(self.base_quat, self.root_states[:, 10:13])[:, 0:2]
+        self.base_roll_pitch[:] = torch.reshape(torch.concat(get_euler_xyz(self.base_quat)), (self.num_envs, 3))[:, 0:2]
         self.projected_gravity[:] = quat_rotate_inverse(self.base_quat, self.gravity_vec)
 
         self._post_physics_step_callback()
@@ -209,12 +211,14 @@ class LeggedRobot(BaseTask):
     def compute_observations(self):
         """ Computes observations
         """
-        self.obs_buf = torch.cat((  self.base_lin_vel * self.obs_scales.lin_vel,
-                                    self.base_ang_vel  * self.obs_scales.ang_vel,
-                                    self.projected_gravity,
-                                    self.commands[:, :3] * self.commands_scale,
+        self.obs_buf = torch.cat((  #self.base_lin_vel * self.obs_scales.lin_vel,
+                                  self.base_roll_pitch,
+                                  self.base_roll_pitch_dot * self.obs_scales.ang_vel,
+                                    #self.base_ang_vel  * self.obs_scales.ang_vel,
+                                    #self.projected_gravity,
                                     (self.dof_pos - self.default_dof_pos) * self.obs_scales.dof_pos,
-                                    self.dof_vel * self.obs_scales.dof_vel,
+                                   self.commands[:, :3] * self.commands_scale,
+                                    #self.dof_vel * self.obs_scales.dof_vel,
                                     self.actions
                                     ),dim=-1)
         # add perceptive inputs if not blind
@@ -224,6 +228,7 @@ class LeggedRobot(BaseTask):
         # add noise if needed
         if self.add_noise:
             self.obs_buf += (2 * torch.rand_like(self.obs_buf) - 1) * self.noise_scale_vec
+        #print(self.obs_buf)
 
     def create_sim(self):
         """ Creates simulation, terrain and evironments
@@ -365,6 +370,7 @@ class LeggedRobot(BaseTask):
         actions_scaled = actions * self.cfg.control.action_scale
         control_type = self.cfg.control.control_type
         if control_type=="P":
+            #print("motor target: ", actions_scaled + self.default_dof_pos)
             torques = self.p_gains*(actions_scaled + self.default_dof_pos - self.dof_pos) - self.d_gains*self.dof_vel
         elif control_type=="V":
             torques = self.p_gains*(actions_scaled - self.dof_vel) - self.d_gains*(self.dof_vel - self.last_dof_vel)/self.sim_params.dt
@@ -517,6 +523,8 @@ class LeggedRobot(BaseTask):
         self.last_contacts = torch.zeros(self.num_envs, len(self.feet_indices), dtype=torch.bool, device=self.device, requires_grad=False)
         self.base_lin_vel = quat_rotate_inverse(self.base_quat, self.root_states[:, 7:10])
         self.base_ang_vel = quat_rotate_inverse(self.base_quat, self.root_states[:, 10:13])
+        self.base_roll_pitch_dot = quat_rotate_inverse(self.base_quat, self.root_states[:, 10:13])[:, 0:2]
+        self.base_roll_pitch = torch.reshape(torch.concat(get_euler_xyz(self.base_quat)), (self.num_envs, 3))[:, 0:2]
         self.projected_gravity = quat_rotate_inverse(self.base_quat, self.gravity_vec)
         if self.cfg.terrain.measure_heights:
             self.height_points = self._init_height_points()

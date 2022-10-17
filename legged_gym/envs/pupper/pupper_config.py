@@ -32,7 +32,7 @@ from legged_gym.envs.base.legged_robot_config import LeggedRobotCfg, LeggedRobot
 
 class PupperFlatCfg( LeggedRobotCfg ):
     class env( LeggedRobotCfg.env ):
-        num_observations = 48
+        num_observations = 31
   
     class terrain( LeggedRobotCfg.terrain ):
         mesh_type = 'plane'
@@ -41,10 +41,10 @@ class PupperFlatCfg( LeggedRobotCfg ):
     class init_state( LeggedRobotCfg.init_state ):
         pos = [0.0, 0.0, 0.22] # x,y,z [m]
         default_joint_angles = { # = target angles [rad] when action = 0.0
-            'leftFrontLegMotor': 0.0,   # [rad]
-            'leftRearLegMotor': 0.0,   # [rad]
-            'rightFrontLegMotor': -0.0 ,  # [rad]
-            'rightRearLegMotor': -0.0,   # [rad]
+            'leg2_leftFrontLegMotor': 0.0,   # [rad]
+            'leg4_leftRearLegMotor': 0.0,   # [rad]
+            'leg1_rightFrontLegMotor': -0.0 ,  # [rad]
+            'leg3_rightRearLegMotor': -0.0,   # [rad]
 
             'leftFrontUpperLegMotor': 0.5,     # [rad]
             'leftRearUpperLegMotor': 0.5,   # [rad]
@@ -85,10 +85,14 @@ class PupperFlatCfg( LeggedRobotCfg ):
     class commands( LeggedRobotCfg.commands ):
         heading_command = False
         class ranges:
-            lin_vel_x = [-0.6, 0.6] # min max [m/s]
-            lin_vel_y = [-1.0, -1.0]   # min max [m/s]
+            lin_vel_x = [-0.7, 0.7] # min max [m/s]
+            lin_vel_y = [-0.3, -0.3]   # min max [m/s]
             ang_vel_yaw = [-1, 1]    # min max [rad/s]
             heading = [-3.14, 3.14]
+            #lin_vel_x = [0.0,0.0]
+            #lin_vel_y = [-0,3, -0.3]
+            #ang_vel_yaw = [0,0]
+
             
     class domain_rand:
         randomize_friction = True

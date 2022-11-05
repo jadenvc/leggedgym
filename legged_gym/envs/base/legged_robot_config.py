@@ -126,6 +126,8 @@ class LeggedRobotCfg(BaseConfig):
         push_robots = True
         push_interval_s = 15
         max_push_vel_xy = 1.
+        stiffness_delta_range = [-0.0, 0.0]
+        damping_delta_range = [-0.0, 0.0]
 
     class rewards:
         class scales:

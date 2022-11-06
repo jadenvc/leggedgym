@@ -60,17 +60,17 @@ class PupperFlatCfg( LeggedRobotCfg ):
         
     class sim( LeggedRobotCfg.sim ):
         dt =  0.002
-        substeps = 2
+        substeps = 1
 
     class control( LeggedRobotCfg.control ):
         # PD Drive parameters:
         control_type = 'P'
-        stiffness = {'LegMotor': 6.}  # [N*m/rad]
-        damping = {'LegMotor': 0.4}     # [N*m*s/rad]
+        stiffness = {'LegMotor': 4.}  # [N*m/rad]
+        damping = {'LegMotor': 0.2}     # [N*m*s/rad]
         # action scale: target angle = actionScale * action + defaultAngle
         action_scale = 0.3
         # decimation: Number of control action updates @ sim DT per policy DT
-        decimation = 10
+        decimation = 15
 
     class asset( LeggedRobotCfg.asset ):
         file = '{LEGGED_GYM_ROOT_DIR}/resources/robots/pupper/pupper_v2a.urdf'
@@ -90,9 +90,11 @@ class PupperFlatCfg( LeggedRobotCfg ):
             dof_acc = -2.5e-7
             action_rate = -0.035
             tracking_lin_vel = 1.8
+            feet_air_time = 0.0
             tracking_ang_vel = 1.0
             orientation = -15.0
             base_height = -5.0
+            feet_clearance = 0.3
             
     class commands( LeggedRobotCfg.commands ):
         heading_command = True
@@ -111,11 +113,11 @@ class PupperFlatCfg( LeggedRobotCfg ):
         friction_range = [0.7, 1.25]
         randomize_base_mass = True
         added_mass_range = [-0.5, 0.5]
-        push_robots = False
-        push_interval_s = 5
-        max_push_vel_xy = 0.25
+        push_robots = True
+        push_interval_s = 8
+        max_push_vel_xy = 1.0
         stiffness_delta_range = [-2.0, 2.0]
-        damping_delta_range = [-0.2, 0.2]
+        damping_delta_range = [-0.05, 0.05]
 
 class PupperFlatCfgPPO( LeggedRobotCfgPPO ):
     class algorithm( LeggedRobotCfgPPO.algorithm ):

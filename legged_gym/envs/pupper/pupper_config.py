@@ -75,36 +75,40 @@ class PupperFlatCfg( LeggedRobotCfg ):
     class asset( LeggedRobotCfg.asset ):
         file = '{LEGGED_GYM_ROOT_DIR}/resources/robots/pupper/pupper_v2a.urdf'
         name = "pupper"
-        foot_name = "LowerLeg"
+        foot_name = "Toe"
+        collapse_fixed_joints = False
         penalize_contacts_on = ["UpperLeg"]
         terminate_after_contacts_on = ["pupper_v2_dji_chassis"]
         self_collisions = 1 # 1 to disable, 0 to enable...bitwise filter
   
     class rewards( LeggedRobotCfg.rewards ):
         soft_dof_pos_limit = 0.85
-        base_height_target = 0.18
+        base_height_target = 0.2
         class scales( LeggedRobotCfg.rewards.scales ):
             torques = -0.0002
             dof_pos_limits = -10.0
             action_magnitude = -0.035
-            dof_acc = -2.5e-7
-            action_rate = -0.075
+            dof_acc = -3.5e-7
+            action_rate = -0.07
             tracking_lin_vel = 2.0
-            feet_air_time = 0.0
+            feet_air_time = 0.1
             tracking_ang_vel = 1.2
             orientation = -15.0
-            base_height = -5.0
-            feet_clearance = 1.0
+            base_height = -15.0
+            feet_clearance = 4.0
             
     class commands( LeggedRobotCfg.commands ):
         heading_command = True
+        curriculum = False
+        max_curriculum = 2.0
         class ranges:
             lin_vel_x = [-0.6, 0.6] # min max [m/s]
             lin_vel_y = [-0.8, 0.8]   # min max [m/s]
             ang_vel_yaw = [-1, 1]    # min max [rad/s]
             heading = [-3.14, 3.14]
-            #lin_vel_x = [-0.0, -0.0]
-            #lin_vel_y = [0.8, 0.8]
+            
+            #lin_vel_x = [0, 0]
+            #lin_vel_y = [-1.5, -1.5]
             #ang_vel_yaw = [-0,-0]
 
             
@@ -112,7 +116,7 @@ class PupperFlatCfg( LeggedRobotCfg ):
         randomize_friction = True
         friction_range = [0.7, 1.25]
         randomize_base_mass = True
-        added_mass_range = [-0.5, 0.5]
+        added_mass_range = [-0.3, 0.3]
         push_robots = True
         push_interval_s = 8
         max_push_vel_xy = 1.0

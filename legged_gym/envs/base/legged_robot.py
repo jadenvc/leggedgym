@@ -186,7 +186,7 @@ class LeggedRobot(BaseTask):
         if self.cfg.terrain.curriculum:
             self.extras["episode"]["terrain_level"] = torch.mean(self.terrain_levels.float())
         if self.cfg.commands.curriculum:
-            self.extras["episode"]["max_command_x"] = self.command_ranges["lin_vel_x"][1]
+            self.extras["episode"]["max_command_y"] = self.command_ranges["lin_vel_y"][1]
         # send timeout info to the algorithm
         if self.cfg.env.send_timeouts:
             self.extras["time_outs"] = self.time_out_buf
@@ -311,6 +311,7 @@ class LeggedRobot(BaseTask):
                 self.dof_pos_limits[i, 1] = m + 0.5 * r * self.cfg.rewards.soft_dof_pos_limit
         return props
 
+    '''
     def _process_rigid_body_props(self, props, env_id):
         # if env_id==0:
         #     sum = 0
@@ -322,6 +323,27 @@ class LeggedRobot(BaseTask):
         if self.cfg.domain_rand.randomize_base_mass:
             rng = self.cfg.domain_rand.added_mass_range
             props[0].mass += np.random.uniform(rng[0], rng[1])
+        return props
+    '''
+
+    def _process_rigid_body_props(self, props, env_id):
+        if self.cfg.domain_rand.randomize_base_mass:
+            # Find the first one with non-zero mass.
+            base_prop = next(prop for prop in props if prop.mass > 1e-5)
+            rng = self.cfg.domain_rand.added_mass_range
+            mass_ratio = 1 + np.random.uniform(
+                rng[0], rng[1]) / base_prop.mass
+            base_prop.mass *= mass_ratio
+            base_prop.inertia.x.x *= mass_ratio
+            base_prop.inertia.x.y *= mass_ratio
+            base_prop.inertia.x.z *= mass_ratio
+            base_prop.inertia.y.x *= mass_ratio
+            base_prop.inertia.y.y *= mass_ratio
+            base_prop.inertia.y.z *= mass_ratio
+            base_prop.inertia.z.x *= mass_ratio
+            base_prop.inertia.z.y *= mass_ratio
+            base_prop.inertia.z.z *= mass_ratio
+
         return props
     
     def _post_physics_step_callback(self):
@@ -465,8 +487,8 @@ class LeggedRobot(BaseTask):
         """
         # If the tracking reward is above 80% of the maximum, increase the range of commands
         if torch.mean(self.episode_sums["tracking_lin_vel"][env_ids]) / self.max_episode_length > 0.8 * self.reward_scales["tracking_lin_vel"]:
-            self.command_ranges["lin_vel_x"][0] = np.clip(self.command_ranges["lin_vel_x"][0] - 0.5, -self.cfg.commands.max_curriculum, 0.)
-            self.command_ranges["lin_vel_x"][1] = np.clip(self.command_ranges["lin_vel_x"][1] + 0.5, 0., self.cfg.commands.max_curriculum)
+            self.command_ranges["lin_vel_y"][0] = np.clip(self.command_ranges["lin_vel_y"][0] - 0.5, -self.cfg.commands.max_curriculum, 0.)
+            self.command_ranges["lin_vel_y"][1] = np.clip(self.command_ranges["lin_vel_y"][1] + 0.5, 0., self.cfg.commands.max_curriculum)
 
 
     def _get_noise_scale_vec(self, cfg):
@@ -718,7 +740,7 @@ class LeggedRobot(BaseTask):
             dof_props = self._process_dof_props(dof_props_asset, i)
             self.gym.set_actor_dof_properties(env_handle, actor_handle, dof_props)
             body_props = self.gym.get_actor_rigid_body_properties(env_handle, actor_handle)
-            #body_props = self._process_rigid_body_props(body_props, i)
+            body_props = self._process_rigid_body_props(body_props, i)
             self.gym.set_actor_rigid_body_properties(env_handle, actor_handle, body_props, recomputeInertia=False)
             self.envs.append(env_handle)
             self.actor_handles.append(actor_handle)
@@ -960,10 +982,11 @@ class LeggedRobot(BaseTask):
         quat = self.base_quat.repeat(1, 4).reshape(-1, 4)
         local_feet_positions = quat_rotate_inverse(
             quat, local_feet_positions).reshape(tensor_shape)
+      
         # We assume that the local feet positions are negative in the base frame
         # The clearance reward is larger when the swing legs are higher.
         rew_clearance = (
-            local_feet_positions[:, :, 2] + self.cfg.rewards.base_height_target)
+            local_feet_positions[:, :, 2] + self.cfg.rewards.base_height_target - 0.04)
         rew_clearance = torch.clip(rew_clearance, max=0.075)
 
         # Only apply to swing legs. TODO(tingnan): extract this to a common api.

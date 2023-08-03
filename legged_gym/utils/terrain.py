@@ -107,14 +107,15 @@ class Terrain:
             self.add_terrain_to_map(terrain, i, j)
     
     def make_terrain(self, choice, difficulty):
+
         terrain = terrain_utils.SubTerrain(   "terrain",
                                 width=self.width_per_env_pixels,
                                 length=self.width_per_env_pixels,
                                 vertical_scale=self.cfg.vertical_scale,
                                 horizontal_scale=self.cfg.horizontal_scale)
-        slope = difficulty * 0.4
-        step_height = 0.05 + 0.18 * difficulty
-        discrete_obstacles_height = 0.05 + difficulty * 0.2
+        slope = difficulty * 0.7
+        step_height = 0.01 + 0.1 * difficulty
+        discrete_obstacles_height = 0.01 + difficulty * 0.09
         stepping_stones_size = 1.5 * (1.05 - difficulty)
         stone_distance = 0.05 if difficulty==0 else 0.1
         gap_size = 1. * difficulty
@@ -125,7 +126,8 @@ class Terrain:
             terrain_utils.pyramid_sloped_terrain(terrain, slope=slope, platform_size=3.)
         elif choice < self.proportions[1]:
             terrain_utils.pyramid_sloped_terrain(terrain, slope=slope, platform_size=3.)
-            terrain_utils.random_uniform_terrain(terrain, min_height=-0.05, max_height=0.05, step=0.005, downsampled_scale=0.2)
+            terrain_utils.random_uniform_terrain(terrain, min_height=-0.025, max_height=0.025, step=0.0025, downsampled_scale=0.1)
+            # terrain_utils.random_uniform_terrain(terrain, min_height=-0.025 * (0.5 * difficulty + 1.), max_height=0.025 * (0.5 * difficulty + 1), step=0.0025 * (0.5 * difficulty + 1), downsampled_scale=0.1 * (0.5 * difficulty + 1))
         elif choice < self.proportions[3]:
             if choice<self.proportions[2]:
                 step_height *= -1
@@ -141,7 +143,8 @@ class Terrain:
             gap_terrain(terrain, gap_size=gap_size, platform_size=3.)
         else:
             pit_terrain(terrain, depth=pit_depth, platform_size=4.)
-        
+        # print(np.min(terrain.height_field_raw), np.max(terrain.height_field_raw), np.shape(terrain.height_field_raw))
+        # print(terrain.width, terrain.length, terrain.horizontal_scale, terrain.vertical_scale)
         return terrain
 
     def add_terrain_to_map(self, terrain, row, col):

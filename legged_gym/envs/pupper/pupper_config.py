@@ -31,11 +31,44 @@
 from legged_gym.envs.base.legged_robot_config import LeggedRobotCfg, LeggedRobotCfgPPO
 
 class PupperFlatCfg( LeggedRobotCfg ):
+    # def _process_rigid_body_props(self, props, env_id):
+    #         if self.cfg.domain_rand.randomize_base_mass:
+    #             rng_mass = self.cfg.domain_rand.added_mass_range
+    #             rand_mass = np.random.uniform(rng_mass[0], rng_mass[1], size=(1, ))
+    #             props[0].mass += rand_mass
+    #         else:
+    #             rand_mass = np.zeros(1)
+    #         if self.cfg.domain_rand.randomize_gripper_mass:
+    #             gripper_rng_mass = self.cfg.domain_rand.gripper_added_mass_range
+    #             gripper_rand_mass = np.random.uniform(gripper_rng_mass[0], gripper_rng_mass[1], size=(1, ))
+    #             props[self.gripper_idx].mass += gripper_rand_mass
+    #         else:
+    #             gripper_rand_mass = np.zeros(1)
+    #         if self.cfg.domain_rand.randomize_base_com:
+    #             rng_com_x = self.cfg.domain_rand.added_com_range_x
+    #             rng_com_y = self.cfg.domain_rand.added_com_range_y
+    #             rng_com_z = self.cfg.domain_rand.added_com_range_z
+    #             rand_com = np.random.uniform([rng_com_x[0], rng_com_y[0], rng_com_z[0]], [rng_com_x[1], rng_com_y[1], rng_com_z[1]], size=(3, ))
+    #             props[0].com += gymapi.Vec3(*rand_com)
+    #         else:
+    #             rand_com = np.zeros(3)
+    #         mass_params = np.concatenate([rand_mass, rand_com, gripper_rand_mass])
+    #         return props
+
+
     class env( LeggedRobotCfg.env ):
         num_observations = 31# + 15
   
     class terrain( LeggedRobotCfg.terrain ):
-        mesh_type = 'plane'
+        # mesh_type = 'trimesh'
+        # curriculum = True
+        horizontal_scale = 0.05 # [m]
+        vertical_scale = 0.0025 # [m]
+        # # terrain types: [smooth slope, rough slope, stairs up, stairs down, discrete]
+        terrain_proportions = [0.3, 0.5, 0, 0, 0.2]
+        terrain_length = 8.
+        terrain_width = 8.
+        # mesh_type = 'plane'
         measure_heights = False
         
     class init_state( LeggedRobotCfg.init_state ):
@@ -78,34 +111,53 @@ class PupperFlatCfg( LeggedRobotCfg ):
         foot_name = "Toe"
         collapse_fixed_joints = False
         penalize_contacts_on = ["UpperLeg"]
-        terminate_after_contacts_on = ["pupper_v2_dji_chassis"]
-        self_collisions = 1 # 1 to disable, 0 to enable...bitwise filter
+        terminate_after_contacts_on = []
+        self_collisions = 0 # 1 to disable, 0 to enable...bitwise filter
   
     class rewards( LeggedRobotCfg.rewards ):
         soft_dof_pos_limit = 0.85
         base_height_target = 0.2
         class scales( LeggedRobotCfg.rewards.scales ):
-            torques = -0.0002
-            dof_pos_limits = -10.0
-            action_magnitude = -0.035
-            dof_acc = -3.5e-7
-            action_rate = -0.07
-            tracking_lin_vel = 2.0
-            feet_air_time = 0.1
-            tracking_ang_vel = 1.2
-            orientation = -15.0
-            base_height = -15.0
-            feet_clearance = 4.0
+            torques = -0.0013
+
+            dof_pos_limits = -10.0 # penalize movement outside allowed bounds
+            action_magnitude = 0.0 # not sure what it is
+            dof_acc = -7e-7 # penalize high accelerations
+
+
+            action_rate = 0.0
+            tracking_lin_vel = 2.3 # main important
+            feet_air_time = 0.2 # maybe i should care more about this...
+            tracking_ang_vel = 2
+            orientation = -5.0 #-10.0 # why is this so high, penalize joint velocities and accelerations
+            base_height = -1.0 #-2.5 # looks bad
+            feet_clearance = 0.4 # consider doubling this
+            # torques = -0.0002
+            # dof_pos_limits = -10.0
+            # action_magnitude = -0.035
+            # dof_acc = -3.5e-7
+            # action_rate = -0.07
+            # tracking_lin_vel = 2.0
+            # feet_air_time = 0.1
+            # tracking_ang_vel = 1.2
+            # orientation = -15.0
+            # base_height = -15.0
+            # feet_clearance = 4.0
             
     class commands( LeggedRobotCfg.commands ):
         heading_command = True
         curriculum = False
         max_curriculum = 2.0
         class ranges:
-            lin_vel_x = [-0.6, 0.6] # min max [m/s]
-            lin_vel_y = [-0.8, 0.8]   # min max [m/s]
-            ang_vel_yaw = [-1, 1]    # min max [rad/s]
-            heading = [-3.14, 3.14]
+            # lin_vel_x = [-0.6, 0.6] # min max [m/s]
+            # lin_vel_y = [-0.8, 0.8]   # min max [m/s]
+            # ang_vel_yaw = [-1, 1]    # min max [rad/s]
+            # heading = [-3.14, 3.14]
+
+            lin_vel_x = [0.0, 0.0] # min max [m/s]
+            lin_vel_y = [-0.6, -0.9]   # min max [m/s]
+            ang_vel_yaw = [-0.3, 0.3]    # min max [rad/s]
+            heading = [-1, 1]
             
             #lin_vel_x = [0, 0]
             #lin_vel_y = [-1.5, -1.5]
@@ -122,17 +174,24 @@ class PupperFlatCfg( LeggedRobotCfg ):
         max_push_vel_xy = 1.0
         stiffness_delta_range = [-2.0, 2.0]
         damping_delta_range = [-0.05, 0.05]
+        randomize_base_com = True
+        added_com_range_x = [-0.01, 0.01]
+        added_com_range_y = [-0.01, 0.01]
+        added_com_range_z = [-0.01, 0.01]
 
 class PupperFlatCfgPPO( LeggedRobotCfgPPO ):
     class algorithm( LeggedRobotCfgPPO.algorithm ):
         entropy_coef = 0.005
     class runner( LeggedRobotCfgPPO.runner ):
-        run_name = ''
+        run_name = 'init'
         experiment_name = 'flat_pupper'
     class policy:
         init_noise_std = 1.0
         actor_hidden_dims = [512, 256, 128]
         critic_hidden_dims = [512, 256, 128]
+        rnn_type = 'lstm'
+        rnn_hidden_size = 512
+        rnn_num_layers = 1
         activation = 'elu' # can be elu, relu, selu, crelu, lrelu, tanh, sigmoid
 
   

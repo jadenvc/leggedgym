@@ -67,8 +67,9 @@ class Pupper(LeggedRobot):
     def __init__(self, cfg, sim_params, physics_engine, sim_device, headless):
         super().__init__(cfg, sim_params, physics_engine, sim_device, headless)
 
-    # def _init_buffers(self):
-    #     super()._init_buffers()
+    def _init_buffers(self):
+        super()._init_buffers()
+        self.motor_temperatures = torch.zeros(self.num_dof, dtype=torch.float, device=self.device, requires_grad=False)
     #     self.position_joints = torch.zeros(self.num_dof, dtype=torch.float, device=self.device, requires_grad=False)
     #     self.velocity_joints = torch.zeros(self.num_dof, dtype=torch.float, device=self.device, requires_grad=False)
 
@@ -190,48 +191,20 @@ class Pupper(LeggedRobot):
             mass_params = np.concatenate([rand_mass, rand_com])
             return props
 
-    # def _get_noise_scale_vec(self, cfg):
-    #     """ Sets a vector used to scale the noise added to the observations.
-    #         [NOTE]: Must be adapted when changing the observations structure
+    def _compute_torques(self, actions):
+        torques = super()._compute_torques(actions)
 
-    #     Args:
-    #         cfg (Dict): Environment config file
+        # Calculate thermal losses
+        currents = torques / self.cfg.control.motor_torque_constant
+        thermal_losses = currents ** 2 * self.cfg.control.motor_electrical_resistance * self.cfg.sim.dt # Losses in Joules
 
-    #     Returns:
-    #         [torch.Tensor]: Vector of scales used to multiply a uniform distribution in [-1, 1]
-    #     """
-    #     noise_vec = torch.zeros_like(self.obs_buf[0])
-    #     self.add_noise = self.cfg.noise.add_noise
-    #     noise_scales = self.cfg.noise.noise_scales
-    #     noise_level = self.cfg.noise.noise_level
-    #     noise_vec[:3] = noise_scales.ang_vel * noise_level * self.obs_scales.ang_vel
-    #     noise_vec[3:6] = noise_scales.gravity * noise_level
-    #     noise_vec[6:9] = 0. # commands
-    #     noise_vec[9:13] = noise_scales.dof_pos * noise_level * self.obs_scales.dof_pos
-    #     noise_vec[13:17] = noise_scales.dof_vel * noise_level * self.obs_scales.dof_vel
-    #     noise_vec[17:21] = 0. # previous actions
-    #     if self.cfg.terrain.measure_heights:
-    #         noise_vec[48:235] = noise_scales.height_measurements* noise_level * self.obs_scales.height_measurements
-    #     return noise_vec
+        # Add thermal losses to motor temperatures
+        self.motor_temperatures += thermal_losses / (self.cfg.control.motor_specific_heat * self.cfg.control.motor_mass)
 
-    # def _reward_no_fly(self):
-    #     contacts = self.contact_forces[:, self.feet_indices, 2] > 0.1
-    #     # sum up the number of contacts (each foot should have at least one)
-    #     both_feet_contact = torch.sum(1.*contacts, dim=1) >= 2
+        # Apply thermal cooling
+        self.motor_temperatures -= self.cfg.control.motor_thermal_conductivity * (self.motor_temperatures - self.cfg.control.motor_ambient_temperature) * self.cfg.sim.dt
+        return torques
 
-    #     # return 1 if both feet have contact, 0 otherwise
-    #     return 1.*both_feet_contact
-
-    # def _reward_base_height(self):
-    #     # Penalize base height away from target
-    #     base_height = torch.mean(self.position_joints * (self.dof_pos - self.cfg.rewards.base_height_target), dim=1)
-    #     return torch.abs(base_height)
-    
-    # def _reward_alive(self):
-    #     return 1.0
-
-    # def _compute_torques(self, actions):
-        
     #     # actions_clipped = actions
     #     actions_clipped = torch.clamp(actions, (ACTION_MIN - DEFAULT_DOF_POS) / self.action_scales, (ACTION_MAX - DEFAULT_DOF_POS) / self.action_scales)
 

@@ -105,6 +105,13 @@ class PupperFlatCfg( LeggedRobotCfg ):
         # decimation: Number of control action updates @ sim DT per policy DT
         decimation = 15
 
+        ambient_temperature = 20.0 # [degC]
+        motor_thermal_resistance = 0.3 # [K/W]
+        motor_electrical_resistance = 0.461 # [Ohm]
+        motor_mass = 0.09 # [kg]
+        motor_specific_heat = 0.9 # [J/(kg*K)]
+        motor_torque_constant = 36 * 0.0069 # [Nm/A]
+
     class asset( LeggedRobotCfg.asset ):
         file = '{LEGGED_GYM_ROOT_DIR}/resources/robots/pupper/pupper_v2a.urdf'
         name = "pupper"

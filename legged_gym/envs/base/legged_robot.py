@@ -144,6 +144,8 @@ class LeggedRobot(BaseTask):
         self.reset_buf = torch.any(torch.norm(self.contact_forces[:, self.termination_contact_indices, :], dim=-1) > 1., dim=1)
         self.time_out_buf = self.episode_length_buf > self.max_episode_length # no terminal reward for time-outs
         self.reset_buf |= self.time_out_buf
+        RESET_PROJECTED_GRAVITY_Z = np.cos(0.52)
+        self.reset_buf |= torch.abs(self.projected_gravity[:, 2]) < RESET_PROJECTED_GRAVITY_Z
 
     def reset_idx(self, env_ids):
         """ Reset some environments.
@@ -223,6 +225,22 @@ class LeggedRobot(BaseTask):
                                     #self.dof_vel * self.obs_scales.dof_vel,
                                     self.actions
                                     ),dim=-1)
+        # print("base roll pitch ", len(self.base_roll_pitch))
+        # self.base_roll_pitch[:] = 0.
+        # self.base_roll_pitch_dot[:] = 0.
+        # print(self.base_roll_pitch)
+        # print(self.base_roll_pitch_dot * self.obs_scales.ang_vel)
+        # set base roll and pitch to zero
+        # self.obs_buf = torch.cat((  #self.base_lin_vel * self.obs_scales.lin_vel,
+        #                           self.base_roll_pitch,
+        #                           self.base_roll_pitch_dot * self.obs_scales.ang_vel,
+        #                             #self.base_ang_vel  * self.obs_scales.ang_vel,
+        #                             #self.projected_gravity,
+        #                             (self.dof_pos - self.default_dof_pos) * self.obs_scales.dof_pos,
+        #                            self.commands[:, :3] * self.commands_scale,
+        #                             #self.dof_vel * self.obs_scales.dof_vel,
+        #                             self.actions
+        #                             ),dim=-1)
         # add perceptive inputs if not blind
         if self.cfg.terrain.measure_heights:
             heights = torch.clip(self.root_states[:, 2].unsqueeze(1) - 0.5 - self.measured_heights, -1, 1.) * self.obs_scales.height_measurements

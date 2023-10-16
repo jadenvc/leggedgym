@@ -46,6 +46,7 @@ class TaskRegistry():
         self.task_classes = {}
         self.env_cfgs = {}
         self.train_cfgs = {}
+        print("initialized")
     
     def register(self, name: str, task_class: VecEnv, env_cfg: LeggedRobotCfg, train_cfg: LeggedRobotCfgPPO):
         self.task_classes[name] = task_class
@@ -84,6 +85,7 @@ class TaskRegistry():
         if name in self.task_classes:
             task_class = self.get_task_class(name)
         else:
+            print(self.task_classes)
             raise ValueError(f"Task with name: {name} was not registered")
         if env_cfg is None:
             # load config files

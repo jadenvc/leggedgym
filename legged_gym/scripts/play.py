@@ -37,6 +37,25 @@ from legged_gym.utils import  get_args, export_policy_as_jit, task_registry, Log
 
 import numpy as np
 import torch
+import pdb
+import cv2
+
+# Given a list of images represented as numpy array, convert to a video and save to file
+def images_to_video(images, output_directory):
+  # Create a VideoWriter object
+#   fourcc = cv2.VideoWriter_fourcc(*'XVID')
+  fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+  video_writer = cv2.VideoWriter(output_directory, fourcc, 30, (images[0].shape[1], images[0].shape[0]))
+
+  # Write the images to the video file
+  for image in images:
+      video_writer.write(np.array(image[:, :, ::-1], dtype=np.uint8))
+
+  # Release the VideoWriter object
+  video_writer.release()
+
+  # Close all windows
+  cv2.destroyAllWindows()
 
 
 def play(args):
@@ -74,16 +93,29 @@ def play(args):
     camera_direction = np.array(env_cfg.viewer.lookat) - np.array(env_cfg.viewer.pos)
     img_idx = 0
 
+    image_list = []
+
     for i in range(10*int(env.max_episode_length)):
         actions = policy(obs.detach())
         obs, _, rews, dones, infos = env.step(actions.detach())
+        # pdb.set_trace()
         if RECORD_FRAMES:
             if i % 2:
                 filename = os.path.join(LEGGED_GYM_ROOT_DIR, 'logs', train_cfg.runner.experiment_name, 'exported', 'frames', f"{img_idx}.png")
                 env.gym.write_viewer_image_to_file(env.viewer, filename)
-                img_idx += 1 
+                image_list.append(cv2.imread(filename))
+                img_idx += 1
+            if i%100:
+                # Given a list of images represented as numpy array, convert to a video and save to file
+                video_path=os.path.join(LEGGED_GYM_ROOT_DIR, 'logs', train_cfg.runner.experiment_name, 'exported', 'frames', f"vid.mp4")
+                # print("saving video")
+                images_to_video(image_list, video_path)
+                # print("saved ", video_path)
+    
+
         if MOVE_CAMERA:
-            camera_position += camera_vel * env.dt
+            # set camera velocity to xy pos of robot
+            camera_position = env.root_states[robot_index, :3].cpu() - 0.2 * camera_direction
             env.set_camera(camera_position, camera_position + camera_direction)
 
         if i < stop_state_log:
@@ -115,7 +147,7 @@ def play(args):
 
 if __name__ == '__main__':
     EXPORT_POLICY = True
-    RECORD_FRAMES = False
-    MOVE_CAMERA = False
+    RECORD_FRAMES = True
+    MOVE_CAMERA = True
     args = get_args()
     play(args)

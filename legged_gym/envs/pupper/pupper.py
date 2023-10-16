@@ -260,3 +260,10 @@ class Pupper(LeggedRobot):
     #     actuator_torques -= self.cfg.control.joint_friction * self.joint_friction_strengths * self.dof_vel
 
     #     return actuator_torques
+
+    # TODO: WRITE YOUR CODE HERE
+    def _reward_base_height(self):
+        # Penalize base height away from target
+        base_height = torch.mean(self.root_states[:, 2].unsqueeze(1) - self.measured_heights, dim=1)
+        return 0.5 - torch.square(base_height - self.cfg.rewards.base_height_target)
+    # TODO: WRITE YOUR CODE HERE

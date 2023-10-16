@@ -65,25 +65,42 @@ class PupperFlatCfg( LeggedRobotCfg ):
         horizontal_scale = 0.05 # [m]
         vertical_scale = 0.0025 # [m]
         # # terrain types: [smooth slope, rough slope, stairs up, stairs down, discrete]
-        terrain_proportions = [0.3, 0.5, 0, 0, 0.2]
+        terrain_proportions = [1.0, 0.0, 0, 0, 0.0]
         terrain_length = 8.
         terrain_width = 8.
-        # mesh_type = 'plane'
+        mesh_type = 'plane'
         measure_heights = False
         
     class init_state( LeggedRobotCfg.init_state ):
         pos = [0.0, 0.0, 0.22] # x,y,z [m]
         rot = [0, 0, 0.7071068, 0.7071068]
+        # default_joint_angles = { # = target angles [rad] when action = 0.0
+        #     'leg2_leftFrontLegMotor': 0.2,   # [rad]
+        #     'leg4_leftRearLegMotor': 0.2,   # [rad]
+        #     'leg1_rightFrontLegMotor': -0.2 ,  # [rad]
+        #     'leg3_rightRearLegMotor': -0.2,   # [rad]
+
+        #     'leftFrontUpperLegMotor': 0.5,     # [rad]
+        #     'leftRearUpperLegMotor': 0.5,   # [rad]
+        #     'rightFrontUpperLegMotor': 0.5,     # [rad]
+        #     'rightRearUpperLegMotor': 0.5,   # [rad]
+
+        #     'leftFrontLowerLegMotor': -1.2,   # [rad]
+        #     'leftRearLowerLegMotor': -1.2,    # [rad]
+        #     'rightFrontLowerLegMotor': -1.2,  # [rad]
+        #     'rightRearLowerLegMotor': -1.2,    # [rad]
+        # }
+
         default_joint_angles = { # = target angles [rad] when action = 0.0
             'leg2_leftFrontLegMotor': 0.2,   # [rad]
             'leg4_leftRearLegMotor': 0.2,   # [rad]
             'leg1_rightFrontLegMotor': -0.2 ,  # [rad]
             'leg3_rightRearLegMotor': -0.2,   # [rad]
 
-            'leftFrontUpperLegMotor': 0.5,     # [rad]
-            'leftRearUpperLegMotor': 0.5,   # [rad]
-            'rightFrontUpperLegMotor': 0.5,     # [rad]
-            'rightRearUpperLegMotor': 0.5,   # [rad]
+            'leftFrontUpperLegMotor': 0.0,     # [rad]
+            'leftRearUpperLegMotor': 0.0,   # [rad]
+            'rightFrontUpperLegMotor': 0.0,     # [rad]
+            'rightRearUpperLegMotor': 0.0,   # [rad]
 
             'leftFrontLowerLegMotor': -1.2,   # [rad]
             'leftRearLowerLegMotor': -1.2,    # [rad]
@@ -111,27 +128,27 @@ class PupperFlatCfg( LeggedRobotCfg ):
         foot_name = "Toe"
         collapse_fixed_joints = False
         penalize_contacts_on = ["UpperLeg"]
-        terminate_after_contacts_on = []
+        terminate_after_contacts_on = ["chassis"]
         self_collisions = 0 # 1 to disable, 0 to enable...bitwise filter
   
     class rewards( LeggedRobotCfg.rewards ):
         soft_dof_pos_limit = 0.85
-        base_height_target = 0.2
+        base_height_target = 0.4
         class scales( LeggedRobotCfg.rewards.scales ):
-            torques = -0.0013
+            torques = -0.00085
 
-            dof_pos_limits = -10.0 # penalize movement outside allowed bounds
+            dof_pos_limits = 0.0 # penalize movement outside allowed bounds
             action_magnitude = 0.0 # not sure what it is
-            dof_acc = -7e-7 # penalize high accelerations
-
+            dof_acc = -8e-7 # penalize high accelerations
 
             action_rate = 0.0
-            tracking_lin_vel = 2.3 # main important
-            feet_air_time = 0.2 # maybe i should care more about this...
-            tracking_ang_vel = 2
-            orientation = -5.0 #-10.0 # why is this so high, penalize joint velocities and accelerations
-            base_height = -1.0 #-2.5 # looks bad
-            feet_clearance = 0.4 # consider doubling this
+            lin_vel_z = 0#-1 #-2
+            ang_vel_xy = 0#-0.03
+            tracking_lin_vel = 0#2.0 # main important
+            feet_air_time = 0#0.035 # maybe i should care more about this...
+            tracking_ang_vel = 0#1.2
+            orientation = 0.0 # why is this so high, penalize joint velocities and accelerations
+            base_height = 2.0 # looks bad
             # torques = -0.0002
             # dof_pos_limits = -10.0
             # action_magnitude = -0.035
@@ -143,9 +160,24 @@ class PupperFlatCfg( LeggedRobotCfg ):
             # orientation = -15.0
             # base_height = -15.0
             # feet_clearance = 4.0
+            termination = -0.0
+            tracking_lin_vel = 0
+            tracking_ang_vel = 0
+            lin_vel_z = 0
+            ang_vel_xy = 0
+            orientation = -0.
+            torques = -0.0002
+            dof_vel = -0.
+            dof_acc = -0
+            # base_height = -0. 
+            # feet_air_time =  1.0
+            collision = 0.
+            feet_stumble = -0.0 
+            action_rate = -0.0
+            # stand_still = -5.
             
     class commands( LeggedRobotCfg.commands ):
-        heading_command = True
+        heading_command = False
         curriculum = False
         max_curriculum = 2.0
         class ranges:
@@ -155,9 +187,9 @@ class PupperFlatCfg( LeggedRobotCfg ):
             # heading = [-3.14, 3.14]
 
             lin_vel_x = [0.0, 0.0] # min max [m/s]
-            lin_vel_y = [-0.6, -0.9]   # min max [m/s]
-            ang_vel_yaw = [-0.3, 0.3]    # min max [rad/s]
-            heading = [-1, 1]
+            lin_vel_y = [-0.8, -0.8]   # min max [m/s]
+            ang_vel_yaw = [-0.0, 0.0]    # min max [rad/s]
+            heading = [-3.14, 3.14]
             
             #lin_vel_x = [0, 0]
             #lin_vel_y = [-1.5, -1.5]
